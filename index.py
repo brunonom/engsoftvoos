@@ -5,18 +5,34 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 
-df = pd.read_csv("./2019/01.csv", encoding="latin-1", delimiter=";")
-df = df.sample(3)
-print(df.sample(3))
+from getDataframe import getDataframe
+
+df = getDataframe()
+
+empresaSum = df.groupby(["Empresa"]).sum().reset_index()
 
 app = dash.Dash()
 
 app.layout = html.Div([
+    html.H1(children="Dashboard de Análise: Histórico de Voos ANAC"),
     dcc.Graph(
-        id="example-graph",
-        figure=px.bar(df, x="ICAO Empresa Aérea", y="Número Voo", barmode="group")
+        id="empresa-partida-delay-bar",
+        figure=px.bar(
+            empresaSum,
+            title="Atraso da Partida total em minutos por Empresa",
+            x="Empresa",
+            y="Partida Delay",
+        )
+    ),
+    dcc.Graph(
+        id="empresa-chegada-delay-bar",
+        figure=px.bar(
+            empresaSum,
+            title="Atraso da Chegada total em minutos por Empresa",
+            x="Empresa",
+            y="Chegada Delay",
+        )
     )
 ])
 
-if __name__ == "__main__":
-    app.run_server()
+app.run_server(debug=True)
