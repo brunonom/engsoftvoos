@@ -34,5 +34,5 @@ def main():
 				data.to_csv(final_path, mode = 'a', header = False)
 				last_row = int(data.index[-1])
 			#print(data.iloc[0:, 0])
-
+	return
 main()
