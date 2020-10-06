@@ -10,31 +10,105 @@ def main():
 		else:
 			meses.append('0' + str(i))
 	final_path = 'voos/complete.csv'
-	last_row = int(0)
+	# last_row = int(0)
 
 	# ['Sigla  da Empresa', 'Número do Voo', 'D I', 'Tipo de Linha',
   #  'Aeroporto Origem', 'Aeroporto Destino', 'Partida Prevista',
   #  'Partida Real', 'Chegada Prevista', 'Chegada Real', 'Situação',
   #  'Justificativa'],
+	# for a in anos:
+	# 	for m in meses:
+	# 		path = 'voos/' + a + '/' + m + '.csv'
+	# 		data = pandas.read_csv(path, encoding="latin-1", delimiter=";", low_memory = False)
+	# 		if a == '2015' and m == '01': # inicializa o csv completo
+	# 			data = data.rename(
+	# 				columns = {
+	# 				data.columns[0] : 'Empresa', 
+	# 				data.columns[1] : 'Numero do Voo',
+	# 				data.columns[10]: 'Situacao'
+	# 				})
+	# 			data.to_csv(final_path)
+	# 			last_row = int(data.index[-1])
+	# 		else: # adiciona no final das colunas
+	# 			#if(len(data.columns) != 12):
+	# 			#	print(a, m)
+	# 			data = data.rename(lambda i : last_row + i + 1)
+	# 			data.to_csv(final_path, mode = 'a', header = False)
+	# 			last_row = int(data.index[-1])
+	# 		#print(data.iloc[0:, 0])
+
+	df = [[	"Indice",
+			"Empresa",
+			"Numero Voo",
+			"Codigo DI",
+			"Codigo Tipo Linha",
+			"Origem",
+			"Destino",
+			"Partida Prevista",
+			"Partida Real",
+			"Chegada Prevista",
+			"Chegada Real",
+			"Situacao Voo",
+			"Justificativa"]]
+
+	final = open(final_path, "w")
+	for i in df[0]:
+		final.write(str(i) + ';')
+	final.write("\n")
+
+	index = 1
 	for a in anos:
 		for m in meses:
 			path = 'voos/' + a + '/' + m + '.csv'
-			data = pandas.read_csv(path, encoding="latin-1", delimiter=";", low_memory = False)
-			if a == '2015' and m == '01': # inicializa o csv completo
-				data = data.rename(
-					columns = {
-					data.columns[0] : 'Empresa', 
-					data.columns[1] : 'Numero do Voo',
-					data.columns[10]: 'Situacao'
-					})
-				data.to_csv(final_path)
-				last_row = int(data.index[-1])
-			else: # adiciona no final das colunas
-				#if(len(data.columns) != 12):
-				#	print(a, m)
-				data = data.rename(lambda i : last_row + i + 1)
-				data.to_csv(final_path, mode = 'a', header = False)
-				last_row = int(data.index[-1])
-			#print(data.iloc[0:, 0])
+			file = open(path, "r", encoding="latin-1")
+			print(path)
+
+			sep = ""
+			for line in file:
+				for char in line:
+					if char == '\t':
+						sep = '\t'
+					if char == ',':
+						sep = ','
+					if char == ';':
+						sep = ';'
+				break
+
+			# if sep == "":
+			# 	print("\tfailed to recognize separator.")
+			# 	return
+			# else:
+			# 	print("\tseparator is {0}.".format(sep))
+
+			file.seek(0)
+			lines = file.readlines()
+			pastHeader = False
+			for i in range(0, len(lines)):
+				lines[i] = lines[i].replace('"', '').replace('\n', '').split(sep)
+
+				if not pastHeader:
+					if ((lines[i][6] == "Partida Prevista") or 
+						(lines[i][6] == "dt_partida_prevista") or 
+						(lines[i][6] == "Data Partida Prevista")):
+						pastHeader = True
+						# print("\tpassed header on line {0}.".format(i+1))
+				else:
+					# df.append([index])
+					final.write(str(index) + ';')
+					for j in range(0, len(lines[i])):
+						final.write(str(lines[i][j]) + ';')
+						# df[index].append(lines[i][j])
+					final.write("\n")
+					index += 1
+
+			file.close()
+
+	# for i in range(0, len(df)):
+	# 	for j in range(0, len(df[i])):
+	# 		final.write(str(df[i][j]) + ';')
+	# 	final.write("\n")
+	final.close()
+
 	return
+
 main() 
