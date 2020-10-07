@@ -1,2 +1,26 @@
 .DS_Store
 __pycache__
+
+# Package Manager #
+node_modules/
+yarn-error.log
+.DS_Store
+
+# Build #
+.cache
+out/
+
+# Generated Files #
+src/targets/**/features.sdkgen
+src/**/types.ts
+src/**/error.ts
+src/**/api.ts
+src/**/client.ts
+sdkgen-targets/
+
+# IDE #
+.vscode
+.idea
+
+# Test #
+src/test.ts
