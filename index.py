@@ -9,10 +9,13 @@ from getDataframe import getDataframe
 from dash.dependencies import Input, Output
 from extractPlotData import extractPlotData
 
+# print("hello")
 # df = getDataframe()
-
+# print("dun")
 # empresaSum = df.groupby(["Empresa"]).sum().reset_index()
 # print(empresaSum)
+# exit()
+
 app = dash.Dash(__name__)
 
 columns = ["Empresa",
@@ -28,8 +31,14 @@ columns = ["Empresa",
 			"Situacao Voo",
 			"Justificativa"]
 
+dates = []
+for i in range(2015, 2020):
+	for j in range(1, 13):
+		dates.append([j,i])
+
 app.layout = html.Div([
 	html.H1("Dashboard de Análise: Histórico de Voos ANAC"),
+	
 	html.Div([
 		# html.Label("X", htmlFor="choosex"),
 		dcc.Dropdown(
@@ -43,30 +52,48 @@ app.layout = html.Div([
 			options=[{"label": i, "value": i} for i in columns],
 			value="Empresa"
 			),
-		], style={'width': '48%', 'display': 'inline-block'}),
+		], style={'width': '40%', 'display': 'inline-block'}
+	),
 
 	html.Div([
 		# html.Label("De", htmlFor="from"),
 		dcc.Dropdown(
-			id="fromyear",
-			options=[{"label": i, "value": i} for i in range(2015, 2020)],
-			value=2015
+			id="from",
+			options=[{"label": str(i), "value": str(i)} for i in dates],
+			value=str(dates[0])
 			),
 		# html.Label("Até", htmlFor="to"),
 		dcc.Dropdown(
-			id="toyear",
-			options=[{"label": i, "value": i} for i in range(2015, 2020)],
-			value=2015
+			id="to",
+			options=[{"label": str(i), "value": str(i)} for i in dates],
+			value=str(dates[0])
 			),
-		], style={'width': '48%', 'float': 'right', 'display': 'inline-block'}),
+		], style={'width': '40%', 'float': 'right', 'display': 'inline-block'}
+	),
+
+	# html.Div([
+	# 	# html.Label("De", htmlFor="from"),
+	# 	dcc.Dropdown(
+	# 		id="frommonth",
+	# 		options=[{"label": i, "value": i} for i in range(1, 13)],
+	# 		value=1
+	# 		),
+	# 	# html.Label("Até", htmlFor="to"),
+	# 	dcc.Dropdown(
+	# 		id="tomonth",
+	# 		options=[{"label": i, "value": i} for i in range(1, 13)],
+	# 		value=1
+	# 		),
+	# 	], style={'width': '10%', 'float': 'right', 'display': 'inline-block'}
+	# ),
 
 	# html.Button("Plotar"),
 
 	dcc.Graph(
 		id="plot",
-		figure=px.bar(
-			extractPlotData("Empresa", "Empresa", 2015, 2015),
-			title="Empresa x Empresa de 2015 até 2015",
+		figure=px.scatter(
+			extractPlotData("Empresa", "Empresa", 1, 2015, 1, 2015),
+			title="Empresa x Empresa de 1/2015 até 1/2015",
 			x="Empresa",
 			y="Empresa",
 		)
@@ -74,16 +101,41 @@ app.layout = html.Div([
 ])
 
 @app.callback(
-	Output(component_id='plot', component_property='figure'),
-	[Input(component_id='choosex', component_property='value'),
-	Input(component_id='choosey', component_property='value'),
-	Input(component_id='fromyear', component_property='value'),
-	Input(component_id='toyear', component_property='value')]
+	Output('plot', 'figure'),
+	[
+	Input('choosex', 'value'),
+	Input('choosey', 'value'),
+	Input('from', 'value'),
+	Input('to', 'value')
+	]
 )
-def update_plot(plotx, ploty, fromyear, toyear):
+def update_plot(plotx, ploty, fromdate, todate):
 	# print(plotx + " x " + ploty + " de " + fromyear + " até " + toyear)
-	fig = px.bar(extractPlotData(plotx, ploty, fromyear, toyear), title="{0} x {1} de {2} até {3}".format(str(plotx), str(ploty), str(fromyear), str(toyear)),)
+	fromsplit = fromdate.replace('[', '').replace(']', '').replace(' ', '').split(",")
+	tosplit = todate.replace('[', '').replace(']', '').replace(' ', '').split(",")
+	df = extractPlotData(plotx, ploty, int(fromsplit[0]), int(fromsplit[1]), int(tosplit[0]), int(tosplit[1]))
+	fig = px.scatter(df, title="{} x {} de {}/{} até {}/{}".format(str(plotx), str(ploty), fromsplit[0], fromsplit[1], tosplit[0], tosplit[1]),)
 	fig.update_xaxes(title=plotx)
 	fig.update_yaxes(title=ploty) 
+	return fig
+
+@app.callback(
+	[
+	Output('to', 'value'),
+	Output('to', 'options'),
+	],
+	[
+	Input('from', 'value')
+	]
+)
+def update_possible_dates(fromvalue):
+	tovalue = fromvalue
+	for i in range(len(dates)):
+		if str(dates[i])==fromvalue:
+			tooptions = [{'label': str(j), 'value': str(j)} for j in dates[i::]]
+			break
+	return tovalue, tooptions
+
+
 
 app.run_server(debug=True)

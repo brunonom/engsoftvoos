@@ -51,17 +51,19 @@ def main():
 			"Situacao Voo",
 			"Justificativa"]]
 
-	final = open(final_path, "w")
-	for i in df[0]:
-		final.write(str(i) + ';')
-	final.write("\n")
+	# print([df[0]])
 
-	index = 1
+	# final = open(final_path, "w")
+	# for i in df[0]:
+	# 	final.write(str(i) + ';')
+	# final.write("\n")
+
 	for a in anos:
 		for m in meses:
 			path = 'voos/' + a + '/' + m + '.csv'
-			file = open(path, "r", encoding="latin-1")
 			print(path)
+			
+			file = open(path, "r", encoding="latin-1")
 
 			sep = ""
 			for line in file:
@@ -80,6 +82,8 @@ def main():
 			# else:
 			# 	print("\tseparator is {0}.".format(sep))
 
+			index = 1
+			indexed = False
 			file.seek(0)
 			lines = file.readlines()
 			pastHeader = False
@@ -87,27 +91,55 @@ def main():
 				lines[i] = lines[i].replace('"', '').replace('\n', '').split(sep)
 
 				if not pastHeader:
-					if ((lines[i][6] == "Partida Prevista") or 
-						(lines[i][6] == "dt_partida_prevista") or 
-						(lines[i][6] == "Data Partida Prevista")):
-						pastHeader = True
-						# print("\tpassed header on line {0}.".format(i+1))
+					for j in lines[i]:
+						if j=="Indice":
+							pastHeader = True
+							indexed = True
+							# print("\tpassed header on line {0}.".format(i+1))
+							# print("\tindexed")
+						elif ((j == "Partida Prevista") or 
+							(j == "dt_partida_prevista") or 
+							(j == "Data Partida Prevista")):
+							pastHeader = True
+							# print("\tpassed header on line {0}.".format(i+1))
+							# print("\tnot indexed")
+							break
 				else:
-					# df.append([index])
-					final.write(str(index) + ';')
-					for j in range(0, len(lines[i])):
-						final.write(str(lines[i][j]) + ';')
-						# df[index].append(lines[i][j])
-					final.write("\n")
-					index += 1
+					valid_row = True
+					for j in lines[i]:
+						if not j or j.isspace():
+							valid_row = False
+							break
+							
+					if valid_row:		
+						df.append([index])
+						# final.write(str(index) + ';')
+						if index>=len(df): print(index) 
+						for j in range(0, len(lines[i])):
+							# final.write(str(lines[i][j]) + ';')
+							df[index].append(lines[i][j])
+						# final.write("\n")
+						index += 1
 
-			file.close()
+			if not indexed:
+				file = open(path, "w")
+				for i in range(0, len(df)):
+					for j in range(0, len(df[i])):
+						if j==len(df[i])-1:
+							file.write(str(df[i][j]))
+						else:
+							file.write(str(df[i][j]) + ';')
+					file.write("\n")
+
+				file.close()
+
+			df = [df[0]]
 
 	# for i in range(0, len(df)):
 	# 	for j in range(0, len(df[i])):
 	# 		final.write(str(df[i][j]) + ';')
 	# 	final.write("\n")
-	final.close()
+	# final.close()
 
 	return
 

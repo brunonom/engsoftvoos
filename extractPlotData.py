@@ -1,16 +1,26 @@
 import pandas
 
-def extractPlotData(xaxis, yaxis, fromyear, toyear):
-	anos = []
-	for i in range(fromyear, toyear+1):
-		anos.append(str(i))
-	
-	meses = []
-	for i in range(1, 13):
-		if i >= 10:
-			meses.append(str(i))
-		else:
-			meses.append('0' + str(i))
+def extractPlotData(xaxis, yaxis, frommonth, fromyear, tomonth, toyear):
+	print(xaxis, yaxis, frommonth, fromyear, tomonth, toyear)
+	dates = []
+	for i in range(2015, 2020):
+		if i==fromyear:
+			if i==toyear:
+				for j in range(frommonth, tomonth+1):
+					dates.append([str(j),str(i)])
+				break	
+			for j in range(frommonth, 13):
+				dates.append([str(j),str(i)])
+		elif i>fromyear and i<toyear:
+			for j in range(1, 13):
+				dates.append([str(j),str(i)])
+		elif i==toyear:
+			for j in range(1, tomonth+1):
+					dates.append([str(j),str(i)])
+
+	for d in dates:
+		if int(d[0])<10:
+			d[0] = '0' + d[0]
 
 	columns = ["Indice",
 			"Empresa",
@@ -34,55 +44,57 @@ def extractPlotData(xaxis, yaxis, fromyear, toyear):
 		if columns[i] == yaxis:
 			ycolnum = i
 
-	df = [[xaxis, yaxis]]
+	if xaxis == yaxis:
+		df = [[str(xaxis)]]
+	else:
+		df = [[str(xaxis), str(yaxis)]]
+	
+	# print("fetching data...")
+	for d in dates:
+		path = 'voos/' + d[1] + '/' + d[0] + '.csv'
+		file = open(path, "r", encoding="latin-1")
+		# print(path)
 
-	for a in anos:
-		for m in ["01"]:
-			path = 'voos/' + a + '/' + m + '.csv'
-			file = open(path, "r", encoding="latin-1")
-			# print(path)
+		sep = ""
+		for line in file:
+			for char in line:
+				if char == '\t':
+					sep = '\t'
+				if char == ',':
+					sep = ','
+				if char == ';':
+					sep = ';'
+			break
 
-			sep = ""
-			for line in file:
-				for char in line:
-					if char == '\t':
-						sep = '\t'
-					if char == ',':
-						sep = ','
-					if char == ';':
-						sep = ';'
-				break
+		# if sep == "":
+		# 	print("\tfailed to recognize separator.")
+		# 	return
+		# else:
+		# 	print("\tseparator is {0}.".format(sep))
 
-			# if sep == "":
-			# 	print("\tfailed to recognize separator.")
-			# 	return
-			# else:
-			# 	print("\tseparator is {0}.".format(sep))
+		file.seek(0)
+		lines = file.readlines()
+		pastHeader = False
+		for i in range(1, len(lines)):
+			lines[i] = lines[i].split(sep)
+			df.append([lines[i][xcolnum], lines[i][ycolnum]])
+		file.close()
+	# print("complete")
 
-			file.seek(0)
-			lines = file.readlines()
-			pastHeader = False
-			for i in range(0, len(lines)):
-				lines[i] = lines[i].replace('"', '').replace('\n', '').split(sep)
-
-				if not pastHeader:
-					if ((lines[i][6] == "Partida Prevista") or 
-						(lines[i][6] == "dt_partida_prevista") or 
-						(lines[i][6] == "Data Partida Prevista")):
-						pastHeader = True
-						# print("\tpassed header on line {0}.".format(i+1))
-				else:
-					df.append([lines[i][xcolnum], lines[i][ycolnum]])
-
-			file.close()
-
+	# print("to pandas...")
 	temp = open("temp.csv", "w")
 	for i in df:
-		for j in i:
-			temp.write(str(j) + ';')
+		for j in range(0, len(i)):
+			if j==len(i)-1:
+				temp.write(str(i[j]))
+			else:
+				temp.write(str(i[j]) + ';')
 		temp.write("\n")
 	temp.close()
 
-	dataframe = pandas.read_csv("temp.csv", delimiter=";")
-	print("aaa")
+	dataframe = pandas.read_csv("temp.csv", delimiter=";", low_memory=False)
+	# print("complete")
+
+	# print(dataframe)
+
 	return dataframe
