@@ -123,14 +123,16 @@ async function uploadCsv(inserted: number, path: string): Promise<number> {
 	})
 }
 
-async function streamData() {
-	try {
-		await elasticsearch.deleteIndex(elasticsearch.Index.flights);
-	} catch {
-		console.log("Index does not exist")
-	}
+async function streamData(reCreate: boolean = false) {
+	if (reCreate) {
+		try {
+			await elasticsearch.deleteIndex(elasticsearch.Index.flights);
+		} catch {
+			console.log("Index does not exist")
+		}
 
-	await elasticsearch.createIndex(elasticsearch.Index.flights);
+		await elasticsearch.createIndex(elasticsearch.Index.flights);
+	}
 
 	let inserted = 0;
 
