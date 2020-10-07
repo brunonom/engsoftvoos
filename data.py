@@ -105,13 +105,13 @@ def main():
 							# print("\tnot indexed")
 							break
 				else:
-					valid_row = True
-					for j in lines[i]:
-						if not j or j.isspace():
-							valid_row = False
-							break
+					# valid_row = True
+					# for j in lines[i]:
+					# 	if not j or j.isspace():
+					# 		valid_row = False
+					# 		break
 							
-					if valid_row:		
+					# if valid_row:		
 						df.append([index])
 						# final.write(str(index) + ';')
 						if index>=len(df): print(index) 

@@ -13,7 +13,7 @@ from extractPlotData import extractPlotData
 # df = getDataframe()
 # print("dun")
 # empresaSum = df.groupby(["Empresa"]).sum().reset_index()
-# print(empresaSum)
+# print(df[2])
 # exit()
 
 app = dash.Dash(__name__)
@@ -71,24 +71,6 @@ app.layout = html.Div([
 		], style={'width': '40%', 'float': 'right', 'display': 'inline-block'}
 	),
 
-	# html.Div([
-	# 	# html.Label("De", htmlFor="from"),
-	# 	dcc.Dropdown(
-	# 		id="frommonth",
-	# 		options=[{"label": i, "value": i} for i in range(1, 13)],
-	# 		value=1
-	# 		),
-	# 	# html.Label("Até", htmlFor="to"),
-	# 	dcc.Dropdown(
-	# 		id="tomonth",
-	# 		options=[{"label": i, "value": i} for i in range(1, 13)],
-	# 		value=1
-	# 		),
-	# 	], style={'width': '10%', 'float': 'right', 'display': 'inline-block'}
-	# ),
-
-	# html.Button("Plotar"),
-
 	dcc.Graph(
 		id="plot",
 		figure=px.scatter(
@@ -114,7 +96,8 @@ def update_plot(plotx, ploty, fromdate, todate):
 	fromsplit = fromdate.replace('[', '').replace(']', '').replace(' ', '').split(",")
 	tosplit = todate.replace('[', '').replace(']', '').replace(' ', '').split(",")
 	df = extractPlotData(plotx, ploty, int(fromsplit[0]), int(fromsplit[1]), int(tosplit[0]), int(tosplit[1]))
-	fig = px.scatter(df, title="{} x {} de {}/{} até {}/{}".format(str(plotx), str(ploty), fromsplit[0], fromsplit[1], tosplit[0], tosplit[1]),)
+	fig = px.scatter(df, x=plotx, y=ploty,
+		title="{} x {} de {}/{} até {}/{}".format(str(plotx), str(ploty), fromsplit[0], fromsplit[1], tosplit[0], tosplit[1]),)
 	fig.update_xaxes(title=plotx)
 	fig.update_yaxes(title=ploty) 
 	return fig
