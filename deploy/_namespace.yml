@@ -1,0 +1,7 @@
+<% const namespace = process.env.CI_PROJECT_NAME %>
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: <%- namespace %>
+---

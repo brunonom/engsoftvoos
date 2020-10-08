@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: <%- namespace %>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: kibana
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 150
+      containers:
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana-oss:7.6.1
+        env:
+          - name: SERVER_NAME
+            value: "flights"
+          - name: ELASTICSEARCH_HOSTS
+            value: "http://elasticsearch:9200"
+          - name: MAP_TILEMAP_OPTIONS_MAXZOOM
+            value: "18"
+          - name: MAP_TILEMAP_URL
+            value: "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        ports:
+        - containerPort: 5601
+          name: ui
+        resources:
+          limits:
+            memory: 400Mi
+            cpu: 800m
+          requests:
+            memory: 120Mi
+            cpu: 10m
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: <%- namespace %>
+spec:
+  ports:
+    - port: 5601
+      name: ui
+  selector:
+    app: kibana
+---

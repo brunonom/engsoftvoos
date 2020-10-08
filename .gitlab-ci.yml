@@ -1,0 +1,24 @@
+stages:
+  - docker
+  - deploy
+
+services:
+  - docker:dind
+
+"[Build] Kubectl":
+  stage: docker
+  image: docker
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker build --pull -t $CI_REGISTRY_IMAGE/kubectl -f helpers/Dockerfile .
+    - docker push $CI_REGISTRY_IMAGE/kubectl
+
+"[Backend] Deploy Kubernetes":
+  image: $CI_REGISTRY_IMAGE/kubectl
+  environment: master
+  stage: deploy
+  script:
+    - cat deploy/*.yml > tmp
+    - ejs-cli tmp > tmp.yml
+    - cat tmp.yml
+    - cat tmp.yml | kubectl apply -f -
