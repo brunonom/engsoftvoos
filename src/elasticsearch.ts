@@ -8,7 +8,6 @@ export enum Index {
 	flights = "flights",
 }
 
-// Create Index
 export async function createIndex(index: Index): Promise<void> {
 	await elastic.indices.create({
 		index,
@@ -23,52 +22,36 @@ export async function createIndex(index: Index): Promise<void> {
 	});
 }
 
-export async function insert(index: Index, items: any[]): Promise<void> {
-	const bulk = [];
+export async function insert(index: Index, entities: any[]): Promise<void> {
+	const body = [];
 
-	for (const item of items) {
-		bulk.push({
+	for (const entity of entities) {
+		body.push({
 			index:  {
 				_index: index,
 				_type: "_doc",
-				_id: item.id,
+				_id: entity.id,
 			},
 		});
 
-		bulk.push(item);
+		body.push(entity);
 	}
 
-	if (bulk.length === 0) {
+	if (body.length === 0) {
 		return;
 	}
 
 	await elastic.bulk({
-		body: bulk,
+		body,
 	});
 }
 
-
-// // Close / Open index
-async function openIndex(index: Index): Promise<void> {
-	await elastic.indices.open({
-		index,
-	});
-}
-
-async function closeIndex(index: Index): Promise<void> {
-	await elastic.indices.close({
-		index,
-	});
-}
-
-// Index
 export async function deleteIndex(index: Index): Promise<void> {
 	await elastic.indices.delete({
 		index,
 	});
 }
 
-// Ping
 export async function ping(): Promise<any> {
 	return await elastic.ping({});
 }
