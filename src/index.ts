@@ -128,7 +128,7 @@ async function streamData(reCreate: boolean = false) {
 		try {
 			await elasticsearch.deleteIndex(elasticsearch.Index.flights);
 		} catch {
-			console.log("Index does not exist")
+			console.log("Index does not exist");
 		}
 
 		await elasticsearch.createIndex(elasticsearch.Index.flights);
