@@ -8,7 +8,6 @@ export enum Index {
 	flights = "flights",
 }
 
-// Create Index
 export async function createIndex(index: Index): Promise<void> {
 	await elastic.indices.create({
 		index,
@@ -47,28 +46,12 @@ export async function insert(index: Index, items: any[]): Promise<void> {
 	});
 }
 
-
-// // Close / Open index
-async function openIndex(index: Index): Promise<void> {
-	await elastic.indices.open({
-		index,
-	});
-}
-
-async function closeIndex(index: Index): Promise<void> {
-	await elastic.indices.close({
-		index,
-	});
-}
-
-// Index
 export async function deleteIndex(index: Index): Promise<void> {
 	await elastic.indices.delete({
 		index,
 	});
 }
 
-// Ping
 export async function ping(): Promise<any> {
 	return await elastic.ping({});
 }
