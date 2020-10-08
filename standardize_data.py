@@ -9,33 +9,6 @@ def main():
 			meses.append(str(i))
 		else:
 			meses.append('0' + str(i))
-	final_path = 'voos/complete.csv'
-	# last_row = int(0)
-
-	# ['Sigla  da Empresa', 'Número do Voo', 'D I', 'Tipo de Linha',
-  #  'Aeroporto Origem', 'Aeroporto Destino', 'Partida Prevista',
-  #  'Partida Real', 'Chegada Prevista', 'Chegada Real', 'Situação',
-  #  'Justificativa'],
-	# for a in anos:
-	# 	for m in meses:
-	# 		path = 'voos/' + a + '/' + m + '.csv'
-	# 		data = pandas.read_csv(path, encoding="latin-1", delimiter=";", low_memory = False)
-	# 		if a == '2015' and m == '01': # inicializa o csv completo
-	# 			data = data.rename(
-	# 				columns = {
-	# 				data.columns[0] : 'Empresa', 
-	# 				data.columns[1] : 'Numero do Voo',
-	# 				data.columns[10]: 'Situacao'
-	# 				})
-	# 			data.to_csv(final_path)
-	# 			last_row = int(data.index[-1])
-	# 		else: # adiciona no final das colunas
-	# 			#if(len(data.columns) != 12):
-	# 			#	print(a, m)
-	# 			data = data.rename(lambda i : last_row + i + 1)
-	# 			data.to_csv(final_path, mode = 'a', header = False)
-	# 			last_row = int(data.index[-1])
-	# 		#print(data.iloc[0:, 0])
 
 	df = [[	"Indice",
 			"Empresa",
@@ -50,13 +23,6 @@ def main():
 			"Chegada Real",
 			"Situacao Voo",
 			"Justificativa"]]
-
-	# print([df[0]])
-
-	# final = open(final_path, "w")
-	# for i in df[0]:
-	# 	final.write(str(i) + ';')
-	# final.write("\n")
 
 	for a in anos:
 		for m in meses:
@@ -113,12 +79,9 @@ def main():
 							
 					# if valid_row:		
 						df.append([index])
-						# final.write(str(index) + ';')
 						if index>=len(df): print(index) 
 						for j in range(0, len(lines[i])):
-							# final.write(str(lines[i][j]) + ';')
 							df[index].append(lines[i][j])
-						# final.write("\n")
 						index += 1
 
 			if not indexed:
@@ -130,17 +93,7 @@ def main():
 						else:
 							file.write(str(df[i][j]) + ';')
 					file.write("\n")
-
 				file.close()
-
 			df = [df[0]]
-
-	# for i in range(0, len(df)):
-	# 	for j in range(0, len(df[i])):
-	# 		final.write(str(df[i][j]) + ';')
-	# 	final.write("\n")
-	# final.close()
-
 	return
-
 main() 
